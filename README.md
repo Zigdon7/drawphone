@@ -1,22 +1,30 @@
-![Drawphone](https://i.imgur.com/UDwA90p.png)
+# Drawphone Remake
 
-### Play now at: [drawphone.tannerkrewson.com](https://drawphone.tannerkrewson.com/)
+A complete rebuild of Drawphone (the telephone/drawing party game) as a modern TypeScript project with WebSocket multiplayer.
 
-Drawphone was built with Node.js, jQuery and [Pug](https://github.com/pugjs/pug). It was one of my first coding projects, so the code is a bit of a mess... 😂
+## Features
+- **WebSocket Multiplayer**: Real-time room joining and game state management.
+- **Vanilla Canvas Drawing**: Simple drawing canvas with colors, brush sizes, eraser, and clear functions. Supports touch and mouse input.
+- **TypeScript & Vite**: Modern developer experience with fast builds.
 
-Issues, feature requests, and pull requests welcome!
+## How to Run
 
-## Development
+1. **Install dependencies**:
+   ```bash
+   npm install
+   cd client
+   npm install
+   ```
 
-#### Instructions
+2. **Start the server**:
+   ```bash
+   npm run start
+   ```
 
-1. Clone the repo to get started
-2. Fork and create any pull requests against the `dev` branch
-3. (If needed) Install `node-canvas` dependencies: Drawphone uses [`node-canvas`](https://github.com/Automattic/node-canvas); on some OSes/processors, `npm` may attempt to compile/install it from source. See the `node-canvas` README for details.
-4. Run `npm install`, then `npm start` to launch the server
-5. Go to `localhost:3000` in your browser
+3. **Start the client (in another terminal)**:
+   ```bash
+   cd client
+   npm run dev
+   ```
 
-#### Tips
-
--   To change the default port, set the `PORT` environment variable
--   If you set the `NODE_ENV` environment variable to `development`, you can use the link `localhost:3000/dev` to automatically join game `ffff`. This is helpful for speeding up debugging.
+Enjoy playing Drawphone!
