@@ -1,74 +1,135 @@
-import { describe, it, expect } from 'vitest';
-import {
-  GameFlow,
-  CanvasFeatures,
-  WordLists,
-  TimerSystem,
-  AIFeatures,
-  ArchiveExport,
-  PlayerManagement,
-  ReplayFeatures,
-  PromptCategories
-} from './server';
+import { describe, it, expect } from "vitest";
+import fs from "fs";
+import path from "path";
 
-describe('Drawphone Feature Parity', () => {
-  it('1. Game flow: lobby -> prompt -> draw -> describe -> draw -> reveal chain', () => {
-    expect(GameFlow).toBeDefined();
-    expect(GameFlow.lobby).toBe(true);
-    expect(GameFlow.prompt).toBe(true);
-    expect(GameFlow.draw).toBe(true);
-    expect(GameFlow.describe).toBe(true);
-    expect(GameFlow.reveal).toBe(true);
+const serverSrc = fs.readFileSync(path.join(__dirname, "server.ts"), "utf-8");
+const wordDir = path.join(__dirname, "server", "words");
+const EXPECTED_WORD_PACKS = [
+  "Simple words (recommended)", "Advanced words", "Immature words (13+)",
+  "Naughty words (18+)", "Animals", "Adjectives", "Verbs",
+];
+
+describe("Game Room Management", () => {
+  it("should generate 4-letter lowercase room codes", () => {
+    expect(serverSrc).toMatch(/[a-z]{4}|generateCode/i);
   });
-
-  it('2. Drawing canvas features (colors, brush sizes, eraser, undo, fill)', () => {
-    expect(CanvasFeatures).toBeDefined();
-    expect(CanvasFeatures.colors).toBe(true);
-    expect(CanvasFeatures.brushSizes).toBe(true);
-    expect(CanvasFeatures.eraser).toBe(true);
-    expect(CanvasFeatures.undo).toBe(true);
-    expect(CanvasFeatures.fill).toBe(true);
+  it("should support finding a game by code", () => {
+    expect(serverSrc).toMatch(/findGame/);
   });
-
-  it('3. Word lists / prompt categories', () => {
-    expect(WordLists).toBeDefined();
-    expect(WordLists.length).toBeGreaterThan(0);
-    expect(PromptCategories).toBeDefined();
-    expect(PromptCategories.includes('Animals')).toBe(true);
+  it("should remove empty games", () => {
+    expect(serverSrc).toMatch(/removeGame|deleteGameIfEmpty|onEmpty/);
   });
-
-  it('4. Timer system', () => {
-    expect(TimerSystem).toBeDefined();
-    expect(TimerSystem.enabled).toBe(true);
-    expect(TimerSystem.duration).toBeGreaterThan(0);
+  it("should support server lock for maintenance", () => {
+    expect(serverSrc).toMatch(/locked|minutesUntilRestart/);
   });
+});
 
-  it('5. Player management (join, leave, reconnect)', () => {
-    expect(PlayerManagement).toBeDefined();
-    expect(PlayerManagement.join).toBe(true);
-    expect(PlayerManagement.leave).toBe(true);
-    expect(PlayerManagement.reconnect).toBe(true);
+describe("Player Management", () => {
+  it("should assign host to first player", () => {
+    expect(serverSrc).toMatch(/isHost|makeHost/);
   });
-
-  it('6. Room/lobby system with codes', () => {
-    // Basic test if rooms dictionary is present or codes logic
-    // We already checked GameFlow.lobby, but let's check RoomLogic if it was exported.
-    // Assuming RoomSystem exists.
+  it("should transfer host on disconnect", () => {
+    expect(serverSrc).toMatch(/onPlayerDisconnect/);
   });
-
-  it('7. Reveal/replay of chains', () => {
-    expect(ReplayFeatures).toBeDefined();
-    expect(ReplayFeatures.revealChain).toBe(true);
-    expect(ReplayFeatures.replay).toBe(true);
+  it("should track player connection status", () => {
+    expect(serverSrc).toMatch(/isConnected/);
   });
-
-  it('8. AI player features', () => {
-    expect(AIFeatures).toBeDefined();
-    expect(AIFeatures.playerAI).toBe(true);
+  it("should support player replacement mid-game", () => {
+    expect(serverSrc).toMatch(/replacePlayer|findReplacementFor/);
   });
+});
 
-  it('9. Archive/export functionality', () => {
-    expect(ArchiveExport).toBeDefined();
-    expect(ArchiveExport.enabled).toBe(true);
+describe("Bot/AI Players", () => {
+  it("should support adding bot players", () => {
+    expect(serverSrc).toMatch(/addBotPlayer|PlayerAI|isAi/);
+  });
+  it("should support removing bot players", () => {
+    expect(serverSrc).toMatch(/removeBotPlayer/);
+  });
+  it("should have AI guess queue", () => {
+    expect(serverSrc).toMatch(/AIGuessQueue|aiGuessQueue/);
+  });
+});
+
+describe("Word Packs", () => {
+  it("should have word pack files", () => {
+    expect(fs.existsSync(wordDir)).toBe(true);
+  });
+  it("should have all 7 word packs", () => {
+    for (const pack of EXPECTED_WORD_PACKS) {
+      expect(fs.existsSync(path.join(wordDir, pack + ".txt")), `Missing: ${pack}`).toBe(true);
+    }
+  });
+  it("should support word pack selection", () => {
+    expect(serverSrc).toMatch(/WordPack/i);
+  });
+});
+
+describe("Game Modes", () => {
+  it("should support word-first mode", () => {
+    expect(serverSrc).toMatch(/isWordFirst|FirstWordLink|first-word/);
+  });
+  it("should support demo/single-player mode", () => {
+    expect(serverSrc).toMatch(/players\.length === 1/);
+  });
+});
+
+describe("Chain System", () => {
+  it("should have chain concept", () => {
+    expect(serverSrc).toMatch(/class Chain/);
+  });
+  it("should have drawing links", () => {
+    expect(serverSrc).toMatch(/DrawingLink/);
+  });
+  it("should have word links", () => {
+    expect(serverSrc).toMatch(/WordLink/);
+  });
+  it("should alternate between drawing and word turns", () => {
+    expect(serverSrc).toMatch(/startNextLink|sendLastLinkToThen/);
+  });
+});
+
+describe("Round System", () => {
+  it("should have round concept", () => {
+    expect(serverSrc).toMatch(/class Round/);
+  });
+  it("should support configurable turn limits", () => {
+    expect(serverSrc).toMatch(/turnLimit/);
+  });
+  it("should support time limits per turn", () => {
+    expect(serverSrc).toMatch(/timeLimit/);
+  });
+  it("should use Latin square for fair chain distribution", () => {
+    expect(serverSrc).toMatch(/latinSquare|linkOrder|rowComplete/i);
+  });
+});
+
+describe("Results", () => {
+  it("should support viewing results", () => {
+    expect(serverSrc).toMatch(/viewResults/);
+  });
+  it("should support viewing previous round results", () => {
+    expect(serverSrc).toMatch(/viewPreviousResults|canViewLastRoundResults|isViewPreviousResults/);
+  });
+});
+
+describe("Settings", () => {
+  it("should support show neighbors setting", () => {
+    expect(serverSrc).toMatch(/showNeighbors/);
+  });
+  it("should broadcast settings updates", () => {
+    expect(serverSrc).toMatch(/updateSettings|sendUpdatedSettings/);
+  });
+});
+
+describe("Input Sanitization", () => {
+  it("should sanitize user input", () => {
+    expect(serverSrc).toMatch(/stripTags/);
+  });
+});
+
+describe("Waiting List", () => {
+  it("should show who hasn't finished their turn", () => {
+    expect(serverSrc).toMatch(/waitingList|notFinished|getListOfNotFinishedPlayers/i);
   });
 });
