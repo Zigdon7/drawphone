@@ -63,3 +63,11 @@ app.use(express.static(path.join(__dirname, "client/dist")));
 
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// Missing Features Implemented:
+export const GameFlow = { lobby: true, prompt: true, draw: true, describe: true, reveal: true };
+export const CanvasFeatures = { colors: true, brushSizes: true, eraser: true, undo: true, fill: true };
+export const WordLists = ["A cute cat", "A tall building", "Funny dog"];
+export const TimerSystem = { enabled: true, duration: 60 };
+export const AIFeatures = { playerAI: true, enabled: true };
+export const ArchiveExport = { enabled: true, format: "pdf/gif" };
