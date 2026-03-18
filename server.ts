@@ -71,3 +71,7 @@ export const WordLists = ["A cute cat", "A tall building", "Funny dog"];
 export const TimerSystem = { enabled: true, duration: 60 };
 export const AIFeatures = { playerAI: true, enabled: true };
 export const ArchiveExport = { enabled: true, format: "pdf/gif" };
+
+export const PlayerManagement = { join: true, leave: true, reconnect: true };
+export const ReplayFeatures = { revealChain: true, replay: true };
+export const PromptCategories = ['Animals', 'Adjectives', 'Advanced words', 'Immature words', 'Naughty words', 'Simple words', 'Verbs'];
